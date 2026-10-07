@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#080a1d" />
+    <title>SnakeSpark — arena survival</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css?v=20261001l" />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-79VYW4GPC8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-79VYW4GPC8');
+    </script>
+  </head>
+  <body>
+    <main class="game-shell">
+      <canvas id="game" aria-label="SnakeSpark game arena"></canvas>
+      <div class="vignette"></div>
+
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="SnakeSpark home"><span class="brand-mark">S</span><span>SNAKE<br />SPARK</span></a>
+        <div class="round-pill" id="roomPill"><span class="pulse"></span><span id="roomName">PUBLIC ARENA</span> <b>·</b> <span id="roomCount">0</span> nomads</div>
+        <div class="profile"><div class="avatar">S</div><button class="nickname" id="nicknameBtn" aria-label="Change nickname">SKYRUNNER</button><button class="about-button" id="aboutBtn" aria-label="View how to play">?</button><button class="sound" id="soundBtn" aria-label="Toggle sound">♬</button></div>
+      </header>
+
+      <aside class="left-rail">
+        <div class="score-card"><span>YOUR MASS</span><strong id="mass">12</strong><div class="progress"><i id="massBar"></i></div><small id="trailStage">TRAIL: SPARK</small><small id="auraLabel">AURA: NONE</small></div>
+        <div class="goal-card glass-panel"><span class="mission-kicker">RUN GOAL</span><b>BECOME A NOVA</b><small>Reach 250 mass to evolve your trail.</small><div class="goal-progress"><i id="goalBar"></i></div><small id="goalText">12 / 250 MASS</small></div>
+        <div class="mission-card glass-panel"><span class="mission-kicker">DAILY CONTRACT</span><b id="missionTitle">PRISM HUNT</b><small id="missionText">Collect 10 energy prisms</small><div class="mission-progress"><i id="missionBar"></i></div></div>
+        <div class="power-card glass-panel"><span class="mission-kicker">POWER-UPS</span><small><b class="power-magnet">◆ MAGNET</b> pulls nearby energy</small><small><b class="power-shield">◆ SHIELD</b> blocks one crash</small><small><b class="power-surge">◆ SURGE</b> doubles energy gains</small><small><b class="power-luminova">✦ LUMINOVA</b> rainbow trail</small><div class="active-power" id="activePower">NO POWER ACTIVE</div></div>
+        <button class="round-button active" id="arenaBtn" title="Arena" aria-label="Start a new arena run">⌁</button>
+        <button class="round-button" id="skinsBtn" title="Skins" aria-label="Change your trail color">✦</button>
+        <button class="round-button" id="headBtn" title="Head style" aria-label="Customize snake head">◉</button>
+        <button class="round-button" id="settingsBtn" title="Settings" aria-label="Toggle focus view">⚙</button>
+      </aside>
+
+      <section class="leaderboard glass-panel">
+        <div class="panel-title"><span>TOP NOMADS</span><span class="live-dot">LIVE</span></div>
+        <ol id="leaderList"></ol>
+        <div class="you-row"><span class="rank" id="rank">#18</span><span class="dot you"></span><b>YOU</b><strong id="youScore">12</strong></div>
+      </section>
+      <section class="vote-panel glass-panel" id="votePanel"><div class="panel-title"><span>ARENA VOTE</span><span id="voteTimer">NEXT: 30s</span></div><p>Choose the next anomaly</p><div class="vote-actions"><button data-vote="COMET">☄ COMET <i id="voteComet">0</i></button><button data-vote="BLACKOUT">◐ BLACKOUT <i id="voteBlackout">0</i></button><button data-vote="MAGNET">⌁ MAGNET <i id="voteMagnet">0</i></button></div></section>
+
+      <section class="help glass-panel">
+        <div><kbd>WASD</kbd><span>STEER</span></div><div><kbd>SPACE</kbd><span>BOOST</span></div><div><kbd>⌘</kbd><span>COLLECT</span></div>
+      </section>
+
+      <div class="minimap glass-panel"><canvas id="minimap" width="140" height="140"></canvas><span id="sectorLabel">SECTOR 07</span><small id="coordsLabel">GRID 00 · 00</small></div>
+      <div class="event-banner hidden" id="eventBanner"><span>✦</span><div><b id="eventTitle">COMET SHOWER</b><small id="eventText">Rare energy incoming</small></div></div>
+      <section class="start-card glass-panel" id="startCard">
+        <p class="eyebrow">WELCOME TO THE GRID</p>
+        <h1>Own the<br /><em>afterglow.</em></h1>
+        <p class="intro">Collect energy, outmaneuver rivals, and become the longest light trail in the arena.</p>
+        <label class="nickname-entry">YOUR CALLSIGN<input id="nicknameInput" maxlength="20" placeholder="NOMAD-0000" autocomplete="nickname" /></label>
+        <div class="room-entry"><label>FRIEND ROOM <input id="roomInput" maxlength="16" placeholder="JOIN WITH CODE" autocomplete="off" /></label><button class="room-action" id="createRoomBtn" type="button">CREATE ROOM</button><button class="room-action" id="joinRoomBtn" type="button">JOIN</button></div>
+        <div class="room-status" id="roomStatus">PUBLIC ARENA · anyone can join</div>
+        <button id="playBtn">ENTER ARENA <span>→</span></button>
+        <small>Move with mouse or WASD · Hold SPACE to boost</small>
+      </section>
+      <section class="death-card glass-panel hidden" id="deathCard">
+        <p class="eyebrow">SIGNAL LOST</p><h1>Nice run.</h1><p id="deathStats">You reached 0 mass.</p><div class="recap-chip" id="recapChip">ARENA RECAP · 0x FLOW</div><button id="shareBtn" class="share-btn">SHARE RUN <span>↗</span></button><button id="spectateBtn" class="spectate-btn">WATCH ARENA <span>◉</span></button><button id="againBtn">RUN IT BACK <span>↻</span></button>
+      </section>
+      <section class="pause-card glass-panel hidden" id="pauseCard"><p class="eyebrow">RUN PAUSED</p><h2>Still in the arena?</h2><p>Your run pauses after one minute without input. Resume within three minutes to keep your place.</p><button id="resumeBtn">RESUME RUN</button></section>
+      <section class="guide-card glass-panel hidden" id="guideCard" role="dialog" aria-modal="true" aria-labelledby="guideTitle"><button class="guide-close" id="guideClose" aria-label="Close guide">×</button><p class="eyebrow">SNAKESPARK FIELD GUIDE</p><h2 id="guideTitle">How to own the afterglow.</h2><div class="guide-grid"><div><b>01 · MOVE</b><p>Use your mouse or WASD to steer. Hold SPACE to boost, but it sheds a little mass.</p></div><div><b>02 · GROW</b><p>Collect energy and avoid rival trails. Quick collections build Flow Combos.</p></div><div><b>03 · POWER UPS</b><p>Grab prisms: MAGNET pulls energy, SHIELD saves you once, SURGE doubles pickups.</p></div><div><b>04 · PLAY TOGETHER</b><p>Vote every 30 seconds for the next anomaly. Complete the daily contract for a bonus.</p></div></div><button id="guidePlayBtn">GOT IT · ENTER ARENA <span>→</span></button></section>
+      <section class="room-card glass-panel hidden" id="roomCard" role="dialog" aria-modal="true"><button class="guide-close" id="roomClose" aria-label="Close room invite">×</button><p class="eyebrow">FRIEND ROOM READY</p><h2 id="roomTitle">SPARK-0000</h2><p>Send this link to bring friends into your arena.</p><button id="copyRoomBtn">COPY INVITE LINK <span>↗</span></button></section>
+      <section class="head-card glass-panel hidden" id="headCard" role="dialog" aria-modal="true"><button class="guide-close" id="headClose" aria-label="Close head customizer">×</button><p class="eyebrow">HEAD FORGE</p><h2>Pick your face.</h2><div class="head-options"><button data-head="CLASSIC"><span>◉</span>CLASSIC</button><button data-head="CYCLOPS"><span>◉</span>CYCLOPS</button><button data-head="CROWN"><span>♛</span>CROWN</button><button data-head="PIXEL"><span>■</span>PIXEL</button></div><label class="photo-head">ADD YOUR PHOTO<input id="photoHeadInput" type="file" accept="image/*" capture="user" /></label><button class="camera-head" id="cameraHeadBtn" type="button">TAKE A SELFIE <span>◉</span></button><div class="camera-preview hidden" id="cameraPreview"><video id="headCamera" autoplay playsinline muted></video><button id="captureHeadBtn" type="button">CAPTURE HEAD</button></div><small>Your photo stays on this device.</small></section>
+      <div class="toast" id="toast">+ 1 ENERGY</div>
+    </main>
+    <script type="module" src="game.js?v=20261001l"></script>
+    <script>
+      const guide = document.getElementById('guideCard');
+      document.getElementById('aboutBtn').onclick = () => guide.classList.remove('hidden');
+      document.getElementById('guideClose').onclick = () => guide.classList.add('hidden');
+      document.getElementById('guidePlayBtn').onclick = () => { guide.classList.add('hidden'); document.getElementById('playBtn').click(); };
+      document.getElementById('resumeBtn').onclick = () => window.dispatchEvent(new Event('snakespark-resume'));
+      document.getElementById('shareBtn').onclick = async (event) => {
+        const text = event.currentTarget.dataset.shareText || 'I am playing SnakeSpark!';
+        try {
+          if (navigator.share) await navigator.share({ title: 'SnakeSpark Arena Recap', text, url: location.href });
+          else { await navigator.clipboard.writeText(`${text} ${location.href}`); event.currentTarget.textContent = 'COPIED TO CLIPBOARD ✓'; }
+        } catch (_) {}
+      };
+      const roomParams = new URLSearchParams(location.search);
+      const activeRoom = (roomParams.get('room') || 'PUBLIC').replace(/[^a-z0-9-]/gi, '').toUpperCase().slice(0, 16) || 'PUBLIC';
+      document.getElementById('roomName').textContent = activeRoom === 'PUBLIC' ? 'PUBLIC ARENA' : `PRIVATE · ${activeRoom}`;
+      const roomInput = document.getElementById('roomInput');
+      const roomStatus = document.getElementById('roomStatus');
+      const roomCard = document.getElementById('roomCard');
+      const roomLink = code => `${location.origin}${location.pathname}?room=${encodeURIComponent(code)}`;
+      const enterRoom = code => { const clean = code.replace(/[^a-z0-9-]/gi, '').toUpperCase().slice(0, 16); if (clean) location.href = roomLink(clean); };
+      roomInput.value = activeRoom === 'PUBLIC' ? '' : activeRoom;
+      roomStatus.textContent = activeRoom === 'PUBLIC' ? 'PUBLIC ARENA · anyone can join' : `FRIEND ROOM · ${activeRoom}`;
+      document.getElementById('createRoomBtn').onclick = () => { const code = `SPARK-${Math.random().toString(36).slice(2, 6).toUpperCase()}`; enterRoom(code); };
+      document.getElementById('joinRoomBtn').onclick = () => enterRoom(roomInput.value);
+      document.getElementById('roomClose').onclick = () => roomCard.classList.add('hidden');
+      document.getElementById('copyRoomBtn').onclick = async event => { const link = roomLink(activeRoom); try { if (navigator.share) await navigator.share({ title: `Join my SnakeSpark room: ${activeRoom}`, url: link }); else { await navigator.clipboard.writeText(link); event.currentTarget.textContent = 'INVITE LINK COPIED ✓'; } } catch (_) {} };
+      if (activeRoom !== 'PUBLIC') { document.getElementById('roomTitle').textContent = activeRoom; roomCard.classList.remove('hidden'); }
+      const headCard = document.getElementById('headCard');
+      let headCameraStream;
+      const stopHeadCamera = () => { if (headCameraStream) headCameraStream.getTracks().forEach(track => track.stop()); headCameraStream = null; document.getElementById('cameraPreview').classList.add('hidden'); };
+      document.getElementById('headBtn').onclick = () => headCard.classList.remove('hidden');
+      document.getElementById('headClose').onclick = () => { stopHeadCamera(); headCard.classList.add('hidden'); };
+      document.querySelectorAll('[data-head]').forEach(button => button.onclick = () => { localStorage.neonNomadsHead = button.dataset.head; location.reload(); });
+      document.getElementById('photoHeadInput').onchange = event => { const file = event.target.files[0]; if (!file) return; if (file.size > 650000) { alert('Choose a photo smaller than 650 KB.'); return; } const reader = new FileReader(); reader.onload = () => { try { localStorage.neonNomadsPhoto = reader.result; localStorage.neonNomadsHead = 'PHOTO'; location.reload(); } catch (_) { alert('That image is too large for this device.'); } }; reader.readAsDataURL(file); };
+      document.getElementById('cameraHeadBtn').onclick = async () => { try { stopHeadCamera(); headCameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 480 }, height: { ideal: 480 } }, audio: false }); const video = document.getElementById('headCamera'); video.srcObject = headCameraStream; document.getElementById('cameraPreview').classList.remove('hidden'); } catch (_) { alert('Camera access was not available. You can still upload a photo.'); } };
+      document.getElementById('captureHeadBtn').onclick = () => { const video = document.getElementById('headCamera'); const side = Math.min(video.videoWidth, video.videoHeight, 360); if (!side) return; const canvas = document.createElement('canvas'); canvas.width = canvas.height = side; const context = canvas.getContext('2d'); context.translate(side, 0); context.scale(-1, 1); context.drawImage(video, (video.videoWidth - side) / 2, (video.videoHeight - side) / 2, side, side, 0, 0, side, side); try { localStorage.neonNomadsPhoto = canvas.toDataURL('image/jpeg', .78); localStorage.neonNomadsHead = 'PHOTO'; stopHeadCamera(); location.reload(); } catch (_) { alert('Could not save this photo.'); } };
+    </script>
+  </body>
+</html>
