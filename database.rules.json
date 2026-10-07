@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "players": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "!newData.exists() || (newData.hasChildren(['name', 'mass', 'color', 'x', 'y', 'room', 'vote', 'updatedAt', 'active']) && newData.child('name').isString() && newData.child('name').val().length <= 20 && newData.child('mass').isNumber() && newData.child('color').isString() && newData.child('x').isNumber() && newData.child('y').isNumber() && newData.child('room').isString() && newData.child('room').val().length <= 16 && newData.child('vote').isString() && newData.child('active').isBoolean())"
+      }
+    }
+  }
+}
